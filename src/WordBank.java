@@ -6,9 +6,8 @@ import java.util.Scanner;
 public class WordBank {
     private ArrayList<String> wordList;
 
-    public static void main(String[] args) throws IOException {
-        WordBank test = new WordBank();
-        System.out.println(test.wordList);
+    public ArrayList<String> getWordList() {
+        return wordList;
     }
 
     public WordBank() throws IOException {
@@ -19,6 +18,5 @@ public class WordBank {
         }
         wordInput.close();
         Collections.shuffle(wordList);
-//        System.out.println(wordList);
     }
 }
