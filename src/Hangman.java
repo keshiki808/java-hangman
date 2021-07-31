@@ -16,18 +16,19 @@ public class Hangman {
         String path = "music/kaiengel_headway.wav";
         Music musicObj = new Music();
         musicObj.playMusic(path);
-        if (round == listOfWords.getWordList().size()){
+        if (round == listOfWords.getWordList().size()) {
             System.out.println("The entire word bank has been exhausted, starting over.");
 
 
-    }
+        }
 
-    public String getWord(WordBank listOfWords, int counter){
+        public String getWord (WordBank listOfWords,int counter){
 
         }
 
     }
-
-
-
 }
+
+
+
+

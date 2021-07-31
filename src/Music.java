@@ -1,6 +1,7 @@
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.swing.*;
 import java.io.File;
 public class Music {
     void playMusic(String songLocation){
@@ -13,6 +14,9 @@ public class Music {
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInput);
                 clip.start();
+//                clip.loop(Clip.LOOP_CONTINUOUSLY);
+                while(clip.isOpen());
+                clip.stop();
             }else{
                 System.out.println("");
             }
