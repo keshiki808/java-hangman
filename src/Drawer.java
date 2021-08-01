@@ -16,6 +16,6 @@ public class Drawer {
                 "_______\n |    |\n O    |\n/|\\   |\n/ \\   |\n"
         };
         System.out.println(hangmanDrawing[incorrectGuesses]);
-
     }
+
 }
