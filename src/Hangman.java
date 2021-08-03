@@ -1,83 +1,96 @@
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Locale;
 import  java.util.Scanner;
 public class Hangman {
 
     public static void main(String[] args) throws IOException {
-        int guessNumber = 0;
         String chosenWord;
         int incorrectGuesses = 0;
-        ArrayList<Character> guessedLetters = new ArrayList<Character>();
-        int round = 0;
+        int playAgainResponse = 1;
         char playerGuess;
-        StringBuilder spaces = new StringBuilder();
+        int difficulty_index;
+        String difficulty;
+        ArrayList<Character> guessedLetters;
         System.out.println("Welcome to Hangman");
-        WordBank gameWordList = new WordBank();
-        System.out.println(gameWordList.getWordList());
-//        String path = "music/kaiengel_headway.wav";
         Music musicObj = new Music();
-        SoundEffects soundsObj = new SoundEffects();
         musicObj.start();
-
-        soundsObj.playSound("sounds/Mario Coin.wav");
-        soundsObj.playSound("sounds/sadtrombone.wav");
-
-
-        if (round == gameWordList.getWordList().size()){
-            System.out.println("The entire word bank has been exhausted, starting over.");
-            round = 0;
-            gameWordList = new WordBank();
-        }
-
+        SoundEffects soundsObj = new SoundEffects();
+        WordBank gameWordList = new WordBank();
         Scanner keyboard = new Scanner(System.in);
 
-        chosenWord = wordGetter(gameWordList,round).toLowerCase();
 
-        spacesBuilder(chosenWord,spaces);
+//      easy/medium/hard round counters to ensure the lists are random and don't repeat until exhausted
+        int[] roundsArray = new int[3];
 
-        Drawer.hangmanBoardDrawer(incorrectGuesses);
+//      Round setup
+        while (playAgainResponse == 1) {
+            incorrectGuesses = 0;
+            guessedLetters = new ArrayList<Character>();
+            StringBuilder spaces = new StringBuilder();
 
-        System.out.println(spaces);
+            difficulty = difficultySelector(keyboard);
 
-        while(incorrectGuesses!=6 && spaces.indexOf("_") != -1) {
+            difficulty_index = difficultyRoundIndex(difficulty);
 
-            playerGuess = guessValidator(keyboard);
-            System.out.println(playerGuess);
+            System.out.println(gameWordList.getWordList(difficulty));
 
+            exhaustedListChecker(gameWordList, roundsArray, difficulty, difficulty_index);
 
-            if (chosenWord.indexOf(playerGuess) != -1) {
-                letterFinder(chosenWord, playerGuess, spaces);
-                soundsObj.playSound("sounds/Mario Coin.wav");
+            chosenWord = wordGetter(gameWordList, roundsArray[difficulty_index], difficulty).toLowerCase();
 
-            } else {
-                incorrectGuesses += 1;
-            }
-            guessNumber += 1;
+            roundsArray[difficulty_index]+=1;
 
-            guessedLetters.add(playerGuess);
+            spacesBuilder(chosenWord, spaces);
 
             Drawer.hangmanBoardDrawer(incorrectGuesses);
+
             System.out.println(spaces);
+
+//          Main game loop
+            while (incorrectGuesses != 6 && spaces.indexOf("_") != -1) {
+
+                playerGuess = guessValidator(keyboard, guessedLetters);
+
+                if (chosenWord.indexOf(playerGuess) != -1) {
+                    letterFinder(chosenWord, playerGuess, spaces);
+                    soundsObj.playSound("sounds/Mario Coin.wav");
+
+                } else {
+                    incorrectGuesses += 1;
+                    soundsObj.playSound("sounds/wrong.wav");
+                }
+
+                Drawer.hangmanBoardDrawer(incorrectGuesses);
+                System.out.println(spaces);
+                System.out.print("Guess letters: ");
+                for (char letter : guessedLetters){
+                    System.out.print(letter + ", ");
+                }
+                System.out.println();
+            }
+
+            resultsDisplay(chosenWord, incorrectGuesses, soundsObj);
+
+            playAgainResponse = playAgain(keyboard);
         }
-        resultsDisplay(chosenWord, incorrectGuesses, soundsObj);
-
-
     }
-        public static String wordGetter(WordBank wordList,int roundNum){
-            return wordList.getWordList().get(roundNum);
+
+
+        public static String wordGetter(WordBank wordList,int roundNum, String difficulty){
+            return wordList.getWordList(difficulty).get(roundNum);
         }
 
-        public static char guessValidator(Scanner scannerObj){
-            String playerGuess = "";
+        public static char guessValidator(Scanner scannerObj, ArrayList<Character> guessedLetters){
+            String playerGuess;
             while(true) {
-                System.out.println("Please guess a letter");
-                playerGuess = scannerObj.nextLine();
-                if(playerGuess.length()==1){
+                System.out.println("Please guess a letter ");
+                playerGuess = (scannerObj.next()).toLowerCase();
+                if (guessedLetters.contains(playerGuess.charAt(0))) {
+                    System.out.println("You've already guessed that, try again");}
+                else if(playerGuess.length()==1){
                     if(Character.isLetter(playerGuess.charAt(0))){
-                        return Character.toLowerCase(playerGuess.charAt(0));
+                        guessedLetters.add(playerGuess.charAt(0));
+                        return playerGuess.charAt(0);
                     }
                 }
             }
@@ -107,8 +120,49 @@ public class Hangman {
         }
         }
 
+        public static String difficultySelector(Scanner scanObj){
+            int difficultyNum = 0;
+            while (difficultyNum !=1 && difficultyNum !=2 && difficultyNum !=3){
+                System.out.println("Please choose a difficulty:Enter 1 for easy, 2 for medium, 3 for hard");
+                difficultyNum = scanObj.nextInt();
+            }
+            if (difficultyNum == 1){
+                return "easy";
+            } else if (difficultyNum == 2){
+                return "medium";
+            } else if (difficultyNum == 3){
+                return "hard";
+            }
+            return "";
+        }
 
-}
+        public static void exhaustedListChecker(WordBank wordList, int[] wordListRound, String difficulty, int roundIndex){
+            if (wordListRound[roundIndex] == wordList.getWordList(difficulty).size()){
+                System.out.println("The entire word bank has been exhausted, reshuffling and starting over.");
+                wordListRound[roundIndex] = 0;
+                wordList.shuffler(wordList.getWordList(difficulty));
+            }
+        }
+
+        public static int playAgain(Scanner scanObj){
+            System.out.println("Press 1 to play again or any other number to quit >>");
+            return scanObj.nextInt();
+        }
+
+        public static int difficultyRoundIndex(String difficulty){
+            int index = switch (difficulty) {
+                case "easy" -> 0;
+                case "medium" -> 1;
+                case "hard" -> 2;
+                default -> 0;
+            };
+            return index;
+        }
+
+        }
+
+
+
 
 
 
