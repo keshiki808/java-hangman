@@ -11,5 +11,4 @@ public class Drawer {
     public static void hangmanBoardDrawer(int incorrectGuesses){
         System.out.println(hangmanDrawing[incorrectGuesses]);
     }
-
 }

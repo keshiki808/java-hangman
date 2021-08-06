@@ -11,16 +11,16 @@ public class Hangman {
         int difficulty_index;
         String difficulty;
         ArrayList<Character> guessedLetters;
-        System.out.println("Welcome to Hangman");
         Music musicObj = new Music();
         musicObj.start();
         SoundEffects soundsObj = new SoundEffects();
         WordBank gameWordList = new WordBank();
         Scanner keyboard = new Scanner(System.in);
 
-
 //      easy/medium/hard round counters to ensure the lists are random and don't repeat until exhausted
         int[] roundsArray = new int[3];
+
+        System.out.println("Welcome to Hangman");
 
 //      Sets up the game round
         while (playAgainResponse == 1) {
@@ -28,13 +28,15 @@ public class Hangman {
             guessedLetters = new ArrayList<Character>();
             StringBuilder spaces = new StringBuilder();
 
-//          Allows the user to select a game difficulty
-            difficulty = difficultySelector(keyboard);
+//          Allows the user to select a game difficulty and sets it to an index for tracking words
+            difficulty_index = difficultyRoundIndex(keyboard);
 
-//          Assigns an index based on the game difficulty selection
-            difficulty_index = difficultyRoundIndex(difficulty);
+//          Assigns the difficulty based on the index
+            difficulty = difficultySetter(difficulty_index);
 
-            System.out.println(gameWordList.getWordList(difficulty));
+//          Subtracts index by 1 to correspond with array range
+            difficulty_index = difficulty_index-1;
+
 //          Checks if the list of words is exhausted and if so shuffles and randomizes the list before traversing again
             exhaustedListChecker(gameWordList, roundsArray, difficulty, difficulty_index);
 
@@ -128,20 +130,13 @@ public class Hangman {
         }
         }
 
-        public static String difficultySelector(Scanner scanObj){
+        public static int difficultyRoundIndex(Scanner scanObj){
             int difficultyNum = 0;
             while (difficultyNum !=1 && difficultyNum !=2 && difficultyNum !=3){
                 System.out.println("Please choose a difficulty:Enter 1 for easy, 2 for medium, 3 for hard");
                 difficultyNum = scanObj.nextInt();
             }
-            if (difficultyNum == 1){
-                return "easy";
-            } else if (difficultyNum == 2){
-                return "medium";
-            } else if (difficultyNum == 3){
-                return "hard";
-            }
-            return "";
+            return difficultyNum;
         }
 
         public static void exhaustedListChecker(WordBank wordList, int[] wordListRound, String difficulty, int roundIndex){
@@ -157,17 +152,16 @@ public class Hangman {
             return scanObj.nextInt();
         }
 
-        public static int difficultyRoundIndex(String difficulty){
-            int index = switch (difficulty) {
-                case "easy" -> 0;
-                case "medium" -> 1;
-                case "hard" -> 2;
-                default -> 0;
-            };
-            return index;
+        public static String difficultySetter(int difficultyIndex){
+            if (difficultyIndex == 1){
+                return "easy";
+            } else if (difficultyIndex == 2){
+                return "medium";
+            } else {
+                return "hard";
+            }
         }
-
-        }
+}
 
 
 

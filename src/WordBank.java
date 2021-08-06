@@ -38,7 +38,5 @@ public class WordBank {
         easyWordList = wordBankReader("easywordlist.txt");
         mediumWordList = wordBankReader("mediumwordlist.txt");
         hardWordList = wordBankReader("hardwordlist.txt");
-
-
     }
 }
