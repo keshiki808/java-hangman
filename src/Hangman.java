@@ -5,7 +5,7 @@ public class Hangman {
 
     public static void main(String[] args) throws IOException {
         String chosenWord;
-        int incorrectGuesses = 0;
+        int incorrectGuesses;
         int playAgainResponse = 1;
         char playerGuess;
         int difficulty_index;
@@ -22,22 +22,25 @@ public class Hangman {
 //      easy/medium/hard round counters to ensure the lists are random and don't repeat until exhausted
         int[] roundsArray = new int[3];
 
-//      Round setup
+//      Sets up the game round
         while (playAgainResponse == 1) {
             incorrectGuesses = 0;
             guessedLetters = new ArrayList<Character>();
             StringBuilder spaces = new StringBuilder();
 
+//          Allows the user to select a game difficulty
             difficulty = difficultySelector(keyboard);
 
+//          Assigns an index based on the game difficulty selection
             difficulty_index = difficultyRoundIndex(difficulty);
 
             System.out.println(gameWordList.getWordList(difficulty));
-
+//          Checks if the list of words is exhausted and if so shuffles and randomizes the list before traversing again
             exhaustedListChecker(gameWordList, roundsArray, difficulty, difficulty_index);
 
             chosenWord = wordGetter(gameWordList, roundsArray[difficulty_index], difficulty).toLowerCase();
 
+//          Tracks already selected words so no repeats until every word for selected difficulty was used once
             roundsArray[difficulty_index]+=1;
 
             spacesBuilder(chosenWord, spaces);
@@ -49,8 +52,10 @@ public class Hangman {
 //          Main game loop
             while (incorrectGuesses != 6 && spaces.indexOf("_") != -1) {
 
+//              Ensures the player guessed a single letter that wasn't already guessed'
                 playerGuess = guessValidator(keyboard, guessedLetters);
 
+//              Logic to identify a correct or incorrect guess
                 if (chosenWord.indexOf(playerGuess) != -1) {
                     letterFinder(chosenWord, playerGuess, spaces);
                     soundsObj.playSound("sounds/Mario Coin.wav");
@@ -73,9 +78,11 @@ public class Hangman {
 
             playAgainResponse = playAgain(keyboard);
         }
+        System.out.println("Quitting game...");
+        System.exit(0);
     }
 
-
+//      Gets the word from the word bank as a string
         public static String wordGetter(WordBank wordList,int roundNum, String difficulty){
             return wordList.getWordList(difficulty).get(roundNum);
         }
@@ -83,9 +90,9 @@ public class Hangman {
         public static char guessValidator(Scanner scannerObj, ArrayList<Character> guessedLetters){
             String playerGuess;
             while(true) {
-                System.out.println("Please guess a letter ");
+                System.out.println("Please guess a single letter ");
                 playerGuess = (scannerObj.next()).toLowerCase();
-                if (guessedLetters.contains(playerGuess.charAt(0))) {
+                if (guessedLetters.contains(playerGuess.charAt(0)) && playerGuess.length()==1) {
                     System.out.println("You've already guessed that, try again");}
                 else if(playerGuess.length()==1){
                     if(Character.isLetter(playerGuess.charAt(0))){
@@ -95,7 +102,7 @@ public class Hangman {
                 }
             }
         }
-
+//      Changes spaces on gameboard in response to correct guesses
         public static void letterFinder(String word, char guess, StringBuilder spaces){
         for(int i = 0; i< word.length(); i++){
             if (word.charAt(i) == guess){
@@ -104,6 +111,7 @@ public class Hangman {
             }
         }
 
+//      Assigns spaces based on length of word
         public static void spacesBuilder(String word, StringBuilder spaces){
         for(int i = 0; i< word.length(); i++){
             spaces.append("_ ");
